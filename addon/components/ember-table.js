@@ -175,8 +175,10 @@ export default class EmberTable2 extends Component {
     });
 
     this._tableResizeSensor = new ResizeSensor(this.element, () => {
-      this.set('_width', this.element.offsetWidth);
-      this.fillupColumn();
+      run(() => {
+        this.set('_width', this.element.offsetWidth);
+        this.fillupColumn();
+      });
     });
   }
 
@@ -338,6 +340,7 @@ export default class EmberTable2 extends Component {
   @computed('columns.@each.subcolumns')
   get hasSubcolumns() {
     let columns = this.get('columns');
+
     for (let i = 0; i < get(columns, 'length'); i++) {
       let subcolumns = get(columns[i], 'subcolumns');
       if (subcolumns !== undefined && subcolumns.length > 0) {
@@ -382,7 +385,12 @@ export default class EmberTable2 extends Component {
   ) get horizontalScrollWrapperStyle() {
     let columns = this.get('bodyColumns');
     let visibility = this.get('_width') < this.get('allColumnWidths') ? 'visibility' : 'hidden';
-    let left = this.get('hasFixedColumn') ? get(columns[0], 'width') : 0;
+    let left;
+    if (get(columns, 'length') > 0 && this.get('hasFixedColumn')) {
+      left = get(columns[0], 'width');
+    } else {
+      left = 0;
+    }
 
     return htmlSafe(`visibility: ${visibility}; left: ${left}px; right: 0px;`);
   }
@@ -576,11 +584,14 @@ export default class EmberTable2 extends Component {
   }
 
   @action
-  onColumnReorderEnds(columnIndex) {
+  onColumnReorderEnded(columnIndex) {
     if (this.get('hasSubcolumns')) {
       // Disable column reordering when table has subcolumn.
       return;
     }
+
+    let newIndex = this._currentColumnIndex;
+    let oldIndex = columnIndex;
 
     if (this._currentColumnIndex !== columnIndex) {
       move(this, 'bodyColumns', columnIndex, this._currentColumnIndex);
@@ -595,6 +606,9 @@ export default class EmberTable2 extends Component {
     this._headerGhostElement = null;
     this._headerAlignBar = null;
     this.element.classList.remove('et-unselectable');
+
+    // Send action up to controller
+    this.sendAction('onColumnReordered', oldIndex, newIndex);
   }
 
   @action
@@ -648,5 +662,10 @@ export default class EmberTable2 extends Component {
   @action
   onHeaderEvent() {
     this.sendAction('onHeaderEvent', ...arguments);
+  }
+
+  @action
+  onFooterEvent() {
+    this.sendAction('onFooterEvent', ...arguments);
   }
 }

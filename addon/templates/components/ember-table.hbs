@@ -9,7 +9,7 @@
         onColumnResized="onColumnResized"
         onColumnResizeEnded="onColumnResizeEnded"
         onColumnReorder="onColumnReorder"
-        onColumnReorderEnds="onColumnReorderEnds"
+        onColumnReorderEnded="onColumnReorderEnded"
         onHeaderEvent="onHeaderEvent"
         width=column.width
       }}
@@ -28,7 +28,7 @@
             onColumnResized="onColumnResized"
             onColumnResizeEnded="onColumnResizeEnded"
             onColumnReorder="onColumnReorder"
-            onColumnReorderEnds="onColumnReorderEnds"
+            onColumnReorderEnded="onColumnReorderEnded"
             onHeaderEvent="onHeaderEvent"
             width=column.width
           }}
@@ -67,6 +67,7 @@
           rowIndex=footerRowIndex
           columnIndex=columnIndex
           numFixedColumns=numFixedColumns
+          onFooterEvent="onFooterEvent"
         }}
       {{/each}}
       </tr>
